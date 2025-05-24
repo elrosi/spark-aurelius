@@ -14,7 +14,6 @@ module.exports = {
         };
     },
 
-
     methods: {
         /**
          * Switch to showing monthly plans.
@@ -57,7 +56,7 @@ module.exports = {
 
 
         /**
-         * Get all of the plans for the active interval.
+         * Get all the plans for the active interval.
          */
         plansForActiveInterval() {
             return _.filter(this.plans, plan => {
@@ -67,21 +66,21 @@ module.exports = {
 
 
         /**
-         * Get all of the paid plans.
+         * Get all the paid plans.
          */
         paidPlans() {
             return _.filter(this.plans, plan => {
-                return plan.active && plan.price > 0;
+                return plan.active;
             });
         },
 
 
         /**
-         * Get all of the paid plans for the active interval.
+         * Get all the paid plans for the active interval.
          */
         paidPlansForActiveInterval() {
             return _.filter(this.plansForActiveInterval, plan => {
-                return plan.active && plan.price > 0;
+                return plan.active && (plan.interval === this.activeInterval);
             });
         },
 
@@ -92,6 +91,7 @@ module.exports = {
         hasMonthlyAndYearlyPlans() {
             return this.monthlyPlans.length > 0 && this.yearlyPlans.length > 0;
         },
+
 
         /**
          * Determine if both monthly and yearly plans are available.
@@ -109,6 +109,7 @@ module.exports = {
             return this.monthlyPlans.length === 0 && this.yearlyPlans.length > 0;
         },
 
+
         /**
          * Determine if both monthly and yearly plans are available.
          */
@@ -119,7 +120,7 @@ module.exports = {
 
 
         /**
-         * Get all of the monthly plans.
+         * Get all the monthly plans.
          */
         monthlyPlans() {
             return _.filter(this.plans, plan => {
@@ -129,7 +130,7 @@ module.exports = {
 
 
         /**
-         * Get all of the yearly plans.
+         * Get all the yearly plans.
          */
         yearlyPlans() {
             return _.filter(this.plans, plan => {

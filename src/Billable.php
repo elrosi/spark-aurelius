@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Cashier;
 use Mpociot\VatCalculator\VatCalculator;
 use Laravel\Cashier\Billable as CashierBillable;
+use Stripe\Exception\ApiErrorException;
 
 trait Billable
 {
@@ -227,9 +228,10 @@ trait Billable
     /**
      * Get the tax rates to apply to the subscription.
      *
-     * @return array
+     * @return array|null
+     * @throws ApiErrorException
      */
-    public function taxRates()
+    public function taxRates(): ?array
     {
         if (! $rate = $this->taxPercentage()) {
             return null;

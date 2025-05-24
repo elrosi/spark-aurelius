@@ -2,6 +2,8 @@
 
 namespace Laravel\Spark\Http\Requests\Auth;
 
+use Illuminate\Validation\Validator;
+use Laravel\Spark\Plan;
 use Laravel\Spark\Spark;
 use Laravel\Spark\Invitation;
 use Illuminate\Foundation\Http\FormRequest;
@@ -10,12 +12,14 @@ use Laravel\Spark\Contracts\Repositories\CouponRepository;
 
 class RegisterRequest extends FormRequest
 {
+    private ?Plan $plan = null;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -24,14 +28,14 @@ class RegisterRequest extends FormRequest
      * Get the validator for a registration request.
      *
      * @param  array  $paymentAttributes
-     * @return \Illuminate\Validation\Validator
+     * @return Validator
      */
-    protected function registerValidator(array $paymentAttributes)
+    protected function registerValidator(array $paymentAttributes): Validator
     {
         $validator = $this->baseValidator();
 
-        // If a paid plan is selected, we will validate the given required fields which
-        // are typically the Stripe tokens. If the selected plan is free
+        // If a paid plan is selected, we will validate the given required fields, which
+        // are typically the Stripe tokens. If the selected plan is free,
         // of course we will not need to validate that these fields are available.
         $validator->sometimes($paymentAttributes, 'required', function ($input) {
             return $this->plan() && $this->plan()->price > 0;
@@ -43,9 +47,9 @@ class RegisterRequest extends FormRequest
     /**
      * Get the base validator instance for a register request.
      *
-     * @return \Illuminate\Validation\Validator
+     * @return Validator
      */
-    public function baseValidator()
+    public function baseValidator(): Validator
     {
         $validator = Spark::interact(
             CreateUser::class.'@validator', [$this]
@@ -54,19 +58,19 @@ class RegisterRequest extends FormRequest
         $allPlanIdList = Spark::activePlanIdList().','.Spark::activeTeamPlanIdList();
 
         $validator->sometimes('plan', 'required|in:'.$allPlanIdList, function () {
-            return $this->invitation ? false : Spark::needsCardUpFront();
+            return !$this->invitation && Spark::needsCardUpFront();
         });
 
         return $validator;
     }
 
     /**
-     * Setup the "after" callback for the validator.
+     * Set up the "after" callback for the validator.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return \Illuminate\Validation\Validator
+     * @param Validator $validator
+     * @return Validator
      */
-    protected function after($validator)
+    protected function after(Validator $validator): Validator
     {
         return $validator->after(function ($validator) {
             if ($this->coupon) {
@@ -82,10 +86,10 @@ class RegisterRequest extends FormRequest
     /**
      * Validate the coupon on the request.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
+     * @param Validator $validator
      * @return void
      */
-    protected function validateCoupon($validator)
+    protected function validateCoupon(Validator $validator): void
     {
         if (! app(CouponRepository::class)->valid($this->coupon)) {
             $validator->errors()->add('coupon', __('This coupon code is invalid.'));
@@ -95,10 +99,10 @@ class RegisterRequest extends FormRequest
     /**
      * Validate the invitation code on the request.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
+     * @param Validator $validator
      * @return void
      */
-    protected function validateInvitation($validator)
+    protected function validateInvitation(Validator $validator): void
     {
         if (! $this->invitation()) {
             $validator->errors()->add('invitation', __('This invitation code is invalid.'));
@@ -110,7 +114,7 @@ class RegisterRequest extends FormRequest
      *
      * @return bool
      */
-    public function hasPaidPlan()
+    public function hasPaidPlan(): bool
     {
         return $this->plan() && $this->plan()->price > 0;
     }
@@ -118,19 +122,21 @@ class RegisterRequest extends FormRequest
     /**
      * Get the full plan array for the specified plan.
      *
-     * @return \Laravel\Spark\Plan|null
+     * @return Plan|null
      */
-    public function plan()
+    public function plan(): ?Plan
     {
         if ($this->plan) {
             return Spark::plans()->merge(Spark::teamPlans())->where('id', $this->plan)->first();
         }
+
+        return null;
     }
 
     /**
      * Get the full invitation instance.
      *
-     * @return \Laravel\Spark\Invitation
+     * @return Invitation
      */
     public function invitation()
     {

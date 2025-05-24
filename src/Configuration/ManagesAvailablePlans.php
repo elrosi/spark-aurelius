@@ -2,6 +2,7 @@
 
 namespace Laravel\Spark\Configuration;
 
+use Illuminate\Support\Collection;
 use Laravel\Spark\Plan;
 use Laravel\Spark\TeamPlan;
 
@@ -12,56 +13,56 @@ trait ManagesAvailablePlans
      *
      * @var bool
      */
-    public static $billsCustomers = false;
+    public static bool $billsCustomers = false;
 
     /**
      * Indicates that the application will bill teams.
      *
      * @var bool
      */
-    public static $billsTeams = false;
+    public static bool $billsTeams = false;
 
     /**
      * The coupon code for the current application wide promotion.
      *
      * @var string
      */
-    public static $promotion;
+    public static string $promotion;
 
     /**
      * The number of days to grant to generic trials.
      *
      * @var int
      */
-    public static $trialDays;
+    public static int $trialDays;
 
     /**
      * The number of days to grant to generic team trials.
      *
      * @var int
      */
-    public static $teamTrialDays;
+    public static int $teamTrialDays;
 
     /**
-     * All of the plans defined for the application.
+     * All the plans defined for the application.
      *
      * @var array
      */
-    public static $plans = [];
+    public static array $plans = [];
 
     /**
-     * All of the team plans defined for the application.
+     * All the team plans defined for the application.
      *
      * @var array
      */
-    public static $teamPlans = [];
+    public static array $teamPlans = [];
 
     /**
      * Indicates that the application will bill customers.
      *
      * @return void
      */
-    public static function billsCustomers()
+    public static function billsCustomers(): void
     {
         static::$billsCustomers = true;
     }
@@ -71,7 +72,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function canBillCustomers()
+    public static function canBillCustomers(): bool
     {
         return static::hasPaidPlans() || static::$billsCustomers;
     }
@@ -81,7 +82,7 @@ trait ManagesAvailablePlans
      *
      * @return void
      */
-    public static function billsTeams()
+    public static function billsTeams(): void
     {
         static::$billsTeams = true;
     }
@@ -91,7 +92,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function canBillTeams()
+    public static function canBillTeams(): bool
     {
         return static::hasPaidTeamPlans() || static::$billsTeams;
     }
@@ -99,10 +100,10 @@ trait ManagesAvailablePlans
     /**
      * Define or retrieve an application wide promotion for new registrations.
      *
-     * @param  string|null  $coupon
+     * @param string|null $coupon
      * @return static|string
      */
-    public static function promotion($coupon = null)
+    public static function promotion(string $coupon = null): string|static
     {
         if (is_null($coupon)) {
             return static::$promotion;
@@ -116,10 +117,10 @@ trait ManagesAvailablePlans
     /**
      * Get or set the number of days for the generic trial.
      *
-     * @param  int|null  $trialDays
+     * @param int|null $trialDays
      * @return static|int
      */
-    public static function trialDays($trialDays = null)
+    public static function trialDays(int $trialDays = null): int|static
     {
         if (is_null($trialDays)) {
             return static::$trialDays;
@@ -133,10 +134,10 @@ trait ManagesAvailablePlans
     /**
      * Get or set the number of days for the generic team trial.
      *
-     * @param  int|null  $teamTrialDays
+     * @param int|null $teamTrialDays
      * @return static|int
      */
-    public static function teamTrialDays($teamTrialDays = null)
+    public static function teamTrialDays(int $teamTrialDays = null): int|static
     {
         if (is_null($teamTrialDays)) {
             return static::$teamTrialDays;
@@ -150,10 +151,10 @@ trait ManagesAvailablePlans
     /**
      * Create a new free plan instance.
      *
-     * @param  string  $name
-     * @return \Laravel\Spark\Plan
+     * @param string $name
+     * @return Plan
      */
-    public static function freePlan($name = 'Free')
+    public static function freePlan(string $name = 'Free'): Plan
     {
         return static::plan($name, 'free');
     }
@@ -161,10 +162,10 @@ trait ManagesAvailablePlans
     /**
      * Create a new free team plan instance.
      *
-     * @param  string  $name
-     * @return \Laravel\Spark\TeamPlan
+     * @param string $name
+     * @return TeamPlan
      */
-    public static function freeTeamPlan($name = 'Free')
+    public static function freeTeamPlan(string $name = 'Free'): TeamPlan
     {
         return static::teamPlan($name, 'free');
     }
@@ -172,11 +173,11 @@ trait ManagesAvailablePlans
     /**
      * Create a new plan instance.
      *
-     * @param  string  $name
-     * @param  string  $id
-     * @return \Laravel\Spark\Plan
+     * @param string $name
+     * @param string $id
+     * @return Plan
      */
-    public static function plan($name, $id)
+    public static function plan(string $name, string $id): Plan
     {
         static::$plans[] = $plan = new Plan($name, $id);
 
@@ -186,11 +187,11 @@ trait ManagesAvailablePlans
     /**
      * Create a new team plan instance.
      *
-     * @param  string  $name
-     * @param  string  $id
-     * @return \Laravel\Spark\TeamPlan
+     * @param string $name
+     * @param string $id
+     * @return TeamPlan
      */
-    public static function teamPlan($name, $id)
+    public static function teamPlan(string $name, string $id): TeamPlan
     {
         static::$teamPlans[] = $plan = new TeamPlan($name, $id);
 
@@ -202,7 +203,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function hasPaidPlans()
+    public static function hasPaidPlans(): bool
     {
         return count(static::plans()->filter(function ($plan) {
             return $plan->price > 0;
@@ -214,7 +215,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function hasYearlyPlans()
+    public static function hasYearlyPlans(): bool
     {
         return static::plans()->filter(function ($plan) {
             return $plan->interval === 'yearly';
@@ -224,9 +225,9 @@ trait ManagesAvailablePlans
     /**
      * Get the active plans defined for the application.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function activePlans()
+    public static function activePlans(): Collection
     {
         return static::plans()->filter(function ($plan) {
             return $plan->active;
@@ -236,9 +237,9 @@ trait ManagesAvailablePlans
     /**
      * Get the plans defined for the application.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function plans()
+    public static function plans(): Collection
     {
         return collect(static::$plans)->map(function ($plan) {
             $plan->type = 'user';
@@ -248,21 +249,21 @@ trait ManagesAvailablePlans
     }
 
     /**
-     * Get an array of all of the active plan IDs.
+     * Get an array of all the active plan IDs.
      *
      * @return array
      */
-    public static function activePlanIds()
+    public static function activePlanIds(): array
     {
         return static::activePlans()->pluck('id')->all();
     }
 
     /**
-     * Get a comma delimited list of active Spark plan IDs.
+     * Get a comma-delimited list of active Spark plan IDs.
      *
      * @return string
      */
-    public static function activePlanIdList()
+    public static function activePlanIdList(): string
     {
         return implode(',', static::activePlanIds());
     }
@@ -272,7 +273,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function hasPaidTeamPlans()
+    public static function hasPaidTeamPlans(): bool
     {
         return count(static::teamPlans()->filter(function ($plan) {
             return $plan->price > 0;
@@ -284,7 +285,7 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function hasYearlyTeamPlans()
+    public static function hasYearlyTeamPlans(): bool
     {
         return static::teamPlans()->filter(function ($plan) {
             return $plan->interval === 'yearly';
@@ -294,9 +295,9 @@ trait ManagesAvailablePlans
     /**
      * Get the active team plans defined for the application.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function activeTeamPlans()
+    public static function activeTeamPlans(): Collection
     {
         return static::teamPlans()->filter(function ($plan) {
             return $plan->active;
@@ -306,9 +307,9 @@ trait ManagesAvailablePlans
     /**
      * Get the team plans defined for the application.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function teamPlans()
+    public static function teamPlans(): Collection
     {
         return collect(static::$teamPlans)->map(function ($plan) {
             $plan->type = 'team';
@@ -318,21 +319,21 @@ trait ManagesAvailablePlans
     }
 
     /**
-     * Get an array of all of the active team plan IDs.
+     * Get an array of all the active team plan IDs.
      *
      * @return array
      */
-    public static function activeTeamPlanIds()
+    public static function activeTeamPlanIds(): array
     {
         return static::activeTeamPlans()->pluck('id')->all();
     }
 
     /**
-     * Get a comma delimited list of active Spark team plan IDs.
+     * Get a comma-delimited list of active Spark team plan IDs.
      *
      * @return string
      */
-    public static function activeTeamPlanIdList()
+    public static function activeTeamPlanIdList(): string
     {
         return implode(',', static::activeTeamPlanIds());
     }
@@ -342,27 +343,27 @@ trait ManagesAvailablePlans
      *
      * @return bool
      */
-    public static function onlyTeamPlans()
+    public static function onlyTeamPlans(): bool
     {
         return static::plans()->isEmpty() && ! static::teamPlans()->isEmpty();
     }
 
     /**
-     * Get all of the plans, both individual and teams.
+     * Get all the plans, both individual and teams.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function allPlans()
+    public static function allPlans(): Collection
     {
         return static::plans()->merge(static::teamPlans());
     }
 
     /**
-     * Get all of the monthly plans, both individual and teams.
+     * Get all the monthly plans, both individual and teams.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function allMonthlyPlans()
+    public static function allMonthlyPlans(): Collection
     {
         return collect(array_merge(
             static::plans()->where('interval', 'monthly')->all(),
@@ -371,11 +372,11 @@ trait ManagesAvailablePlans
     }
 
     /**
-     * Get all of the yearly plans, both individual and teams.
+     * Get all the yearly plans, both individual and teams.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public static function allYearlyPlans()
+    public static function allYearlyPlans(): Collection
     {
         return collect(array_merge(
             static::plans()->where('interval', 'yearly')->all(),
